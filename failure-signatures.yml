@@ -1,2 +1,19 @@
-# Add your failure signatures here.
-# See https://github.com/<your-username>/pipeline-failure-analyzer for the format reference.
+- id: 1
+  name: "Android Build Failed"
+  description: |
+    The Android build failed with an exception.
+
+    {{#if filePath}}
+    <strong>File:</strong> {{filePath}}
+    {{/if}}
+    {{#if errorMessage}}
+    <strong>Error:</strong> {{errorMessage}}
+    {{/if}}
+
+  categories: [developer, build, android, compile_error]
+  patterns:
+    - regex: 'FAILURE:\s+Build\s+failed\s+with\s+an\s+exception\.'
+      extract:
+        - from: job
+          regex: '(?<filePath>lib\S+\.dart:\d+:\d+):\s+Error:\s+(?<errorMessage>.+)'
+          pick: first
