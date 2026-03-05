@@ -76,11 +76,54 @@
     {{/if}}
 
   categories: [developer, test, flutter, compile_error]
+  overrides: [6]
   patterns:
     - regex: 'Compilation\s+failed\s+for\s+testPath='
-      context:
-        job: "📱 Integration & UI Tests"
       extract:
         - from: job
           regex: '(?<filePath>lib\S+\.dart:\d+:\d+):\s+Error:\s+(?<errorMessage>.+)'
+          pick: multiple
+
+- id: 5
+  name: "Flutter Formatting Issue"
+  description: |
+    Flutter formatting issues were found.
+
+    {{#if filePath}}
+    <strong>File:</strong> {{filePath}}
+    {{/if}}
+
+    <strong>How to fix?:</strong>
+    Run `flutter format` on the file(s) mentioned above.
+
+  categories: [developer, analysis, dart, formatting]
+  patterns:
+    - substring: "Format issues found"
+      extract:
+        - from: job
+          regex: 'Formatted\s+(?<filePath>lib\S+\.dart)'
+          pick: multiple
+      context:
+        job: "🔍 Code Quality Analysis"
+
+- id: 6
+  name: "Flutter Tests Failed"
+  description: |
+    Some Flutter tests failed.
+
+    {{#if testPath}}
+    <strong>How to fix?:</strong>
+    Look for errors in the test(s) mentioned below and fix them before trying again.
+    <strong>Test:</strong> {{testPath}}
+    {{/if}}
+    {{#if testName}}
+    <strong>Name:</strong> {{testName}}
+    {{/if}}
+
+  categories: [developer, test, flutter, test_failure]
+  patterns:
+    - substring: "⚠️  Some tests failed."
+      extract:
+        - from: job
+          regex: '\d+:\s+(?<testPath>\S+\.dart):\s+(?<testName>.+?)\s+\[E\]'
           pick: multiple
