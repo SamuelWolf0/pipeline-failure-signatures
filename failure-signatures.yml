@@ -1,7 +1,50 @@
 - id: 1
-  name: "Android Build Failed"
+  name: "Flutter Build Failed"
   description: |
-    The Android build failed with an exception.
+    The Flutter build failed with an exception.
+
+
+    {{#if filePath}}
+    <strong>How to fix?:</strong>
+    Fix the problems in the file(s) mentioned below and try again.
+    <strong>File:</strong> {{filePath}}
+    {{/if}}
+    {{#if errorMessage}}
+    <strong>Error:</strong> {{errorMessage}}
+    {{/if}}
+
+  categories: [developer, build, flutter, compile_error]
+  overrides: [2, 3, 4]
+  patterns:
+    - regex: 'FAILURE:\s+Build\s+failed\s+with\s+an\s+exception\.'
+      context:
+        job: "🤖 Build Android APK"
+      extract:
+        - from: job
+          regex: '(?<filePath>lib\S+\.dart:\d+:\d+):\s+Error:\s+(?<errorMessage>.+)'
+          pick: multiple
+
+- id: 2
+  name: "Web Build Failed"
+  description: |
+    The Flutter web build failed to compile.
+
+    <strong>How to fix?:</strong>
+    Look for errors in the Flutter Build Failure and fix them before trying again.
+
+  categories: [developer, build, javascript, compile_error]
+  patterns:
+    - regex: 'Error:\s+Failed\s+to\s+compile\s+application\s+for\s+the\s+Web\.'
+      context:
+        job: "🌐 Build Web App"
+
+- id: 3
+  name: "iOS Build Failed"
+  description: |
+    The iOS build failed.
+
+    <strong>How to fix?:</strong>
+    Look for errors in the following files and fix them before trying again.
 
     {{#if filePath}}
     <strong>File:</strong> {{filePath}}
@@ -10,10 +53,34 @@
     <strong>Error:</strong> {{errorMessage}}
     {{/if}}
 
-  categories: [developer, build, android, compile_error]
+  categories: [developer, build, ios, compile_error]
   patterns:
-    - regex: 'FAILURE:\s+Build\s+failed\s+with\s+an\s+exception\.'
+    - substring: "Failed to build iOS app"
+      context:
+        job: "🍎 Build iOS"
       extract:
         - from: job
           regex: '(?<filePath>lib\S+\.dart:\d+:\d+):\s+Error:\s+(?<errorMessage>.+)'
-          pick: first
+          pick: multiple
+
+- id: 4
+  name: "Flutter Tests Build Failure"
+  description: |
+    Flutter tests failed due to a compilation error.
+
+    {{#if filePath}}
+    <strong>File:</strong> {{filePath}}
+    {{/if}}
+    {{#if errorMessage}}
+    <strong>Error:</strong> {{errorMessage}}
+    {{/if}}
+
+  categories: [developer, test, flutter, compile_error]
+  patterns:
+    - regex: 'Compilation\s+failed\s+for\s+testPath='
+      context:
+        job: "📱 Integration & UI Tests"
+      extract:
+        - from: job
+          regex: '(?<filePath>lib\S+\.dart:\d+:\d+):\s+Error:\s+(?<errorMessage>.+)'
+          pick: multiple
